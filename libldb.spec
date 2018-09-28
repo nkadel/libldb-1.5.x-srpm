@@ -13,7 +13,7 @@
 %global tevent_version 0.9.36
 
 Name: libldb
-Version: 1.4.2
+Version: 1.3.6
 Release: 0%{?dist}
 Summary: A schema-less, ldap like, API and database
 Requires: libtalloc%{?_isa} >= %{talloc_version}
@@ -38,6 +38,12 @@ BuildRequires: python2-tevent
 BuildRequires: doxygen
 BuildRequires: openldap-devel
 BuildRequires: libcmocka-devel
+%if (0%{?fedora} >= 28 || 0%{?rhel} > 7)
+BuildRequires: libtirpc-devel
+%else
+BuildRequires: rpcbind
+%endif
+
 
 Provides: bundled(libreplace)
 
@@ -49,7 +55,7 @@ BuildRequires: python3-tevent
 %endif
 
 # Patches
-Patch0001: 0002-ldb-Run-at-least-some-tests-on-32-bit-machines.patch
+#Patch0001: 0002-ldb-Run-at-least-some-tests-on-32-bit-machines.patch
 
 %description
 An extensible library that implements an LDAP like API to access remote LDAP
@@ -135,7 +141,7 @@ Development files for the Python bindings for the LDB library
 
 %prep
 %setup -q -n ldb-%{version}
-%patch0001 -p3
+#%patch0001 -p3
 
 %build
 
@@ -152,7 +158,9 @@ export python_LDFLAGS=""
 %if 0%{?fedora} || 0%{?rhel} > 7
 pathfix.py -n -p -i %{__python2} buildtools/bin/waf
 %else
-sed -i.python2 "s|^#!/usr/bin/env python|#!/usr/bin/python2|g" buildtools/bin/waf
+# Assume python is python2
+#sed -i.python2 "s|^#!/usr/bin/env python|#!/usr/bin/python2|g" buildtools/bin/waf
+sed -i.python2 "s|^#!/usr/bin/env python|#!/usr/bin/python|g" buildtools/bin/waf
 %endif
 
 %configure --disable-rpath \
@@ -190,10 +198,10 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 %files
 %dir %{_libdir}/ldb
 %{_libdir}/libldb.so.*
-%{_libdir}/ldb/libldb-key-value.so
+#%{_libdir}/ldb/libldb-key-value.so
 # lmdb is not supported on 32 bit architectures
 %if 0%{?__isa_bits} == 64
-%{_libdir}/ldb/libldb-mdb-int.so
+#%{_libdir}/ldb/libldb-mdb-int.so
 %endif
 %dir %{_libdir}/ldb/modules
 %dir %{_libdir}/ldb/modules/ldb
@@ -258,6 +266,10 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 %endif
 
 %changelog
+* Fri Sep 28 2018 Nico Kadel-Garcia <nkadel@gmail.com> - 1.3.6-0
+- Roll back to 1.3.6 for Samba 4.8.5 dependencies
+- Add rpc dependencies
+
 * Mon Sep 3 2018 Nico Kadel-Garcia <nkadel@gmail.com> - 1.4.2-0
 - Renumber to 1.4.2-0
 - Add sed workaround for missing pathfix.py for RHEL
