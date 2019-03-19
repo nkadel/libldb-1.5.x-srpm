@@ -13,14 +13,14 @@
 %global tevent_version 0.9.36
 
 Name: libldb
-Version: 1.4.3
-Release: 0%{?dist}
+Version: 1.4.6
+Release: 0.1%{?dist}
 Summary: A schema-less, ldap like, API and database
 Requires: libtalloc%{?_isa} >= %{talloc_version}
 Requires: libtdb%{?_isa} >= %{tdb_version}
 Requires: libtevent%{?_isa} >= %{tevent_version}
 License: LGPLv3+
-URL: http://ldb.samba.org/
+URL: https://ldb.samba.org/
 Source: https://www.samba.org/ftp/ldb/ldb-%{version}.tar.gz
 
 BuildRequires: gcc
@@ -107,7 +107,7 @@ Provides: pyldb-devel%{?_isa} = %{version}-%{release}
 
 %description -n python-ldb-devel-common
 Development files for the Python bindings for the LDB library.
-This package includes files that aren't specific to a Python version.
+This package includes files that are not specific to a Python version.
 
 %if 0%{?with_python3}
 
@@ -152,7 +152,7 @@ export python_LDFLAGS=""
 %if 0%{?fedora} || 0%{?rhel} > 7
 pathfix.py -n -p -i %{__python2} buildtools/bin/waf
 %else
-sed -i.python2 "s|^#!/usr/bin/env python|#!/usr/bin/python2|g" buildtools/bin/waf
+sed -i.python2 "s|^#!/usr/bin/env python|#!%{__python2}|g" buildtools/bin/waf
 %endif
 
 %configure --disable-rpath \
@@ -185,10 +185,13 @@ cp -a apidocs/man/* $RPM_BUILD_ROOT/%{_mandir}
 # file path
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 
-# Flush build-id reckage
-rm -rf $RPM_BUILD_ROOT/%{_libdir}/.build-id
-
+#ldconfig_scriptlets not compatible with RHEL
+%if 0%{?fedora} || 0%{?rhel} > 7
 %ldconfig_scriptlets
+%else
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
+%endif # fedora || rhel > 7
 
 %files
 %dir %{_libdir}/ldb
@@ -242,7 +245,13 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir}/.build-id
 %{_includedir}/pyldb.h
 %{_mandir}/man*/Py*.gz
 
+#ldconfig_scriptlets not compatible with RHEL
+%if 0%{?fedora} || 0%{?rhel} > 7
 %ldconfig_scriptlets -n python2-ldb
+%else
+%post -n python2-ldb -p /sbin/ldconfig
+%postun -n python2-ldb -p /sbin/ldconfig
+%endif # fedora || rhel > 7
 
 %if 0%{?with_python3}
 
@@ -256,21 +265,19 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir}/.build-id
 %{_libdir}/libpyldb-util.cpython-*.so
 %{_libdir}/pkgconfig/pyldb-util.cpython-*.pc
 
+#ldconfig_scriptlets not compatible with RHEL
+%if 0%{?fedora} || 0%{?rhel} > 7
 %ldconfig_scriptlets -n python3-ldb
+%else
+%post -n python3-ldb -p /sbin/ldconfig
+%postun -n python3-ldb -p /sbin/ldconfig
+%endif # fedora || rhel > 7
 
 %endif
 
 %changelog
-* Thu Nov 8 2018 Nico Kadel-Garcia <nkadel@gmail.com> - 1.4.3-0
-- Update to 1.4.3
-- Flush build-id
-
-* Thu Nov 1 2018 Nico Kadel-Garcia <nkadel@gmail.com> - 1.4.2-0.1
-- Update Source URL
-
-* Mon Sep 3 2018 Nico Kadel-Garcia <nkadel@gmail.com> - 1.4.2-0
-- Renumber to 1.4.2-0
-- Add sed workaround for missing pathfix.py for RHEL
+* Thu Aug 16 2018 Lukas Slebodnik <lslebodn@fedoraproject.org> - 1.4.2-1
+- New upstream release 1.4.2
 
 * Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.4.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
@@ -278,7 +285,7 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir}/.build-id
 * Thu Jul 12 2018 Jakub Hrozek <jhrozek@redhat.com> - 1.4.1-1
 - New upstream release 1.4.1
 - Apply a patch to hide local ABI symbols to avoid issues with new binutils
-- Patch the waf script to explicitly call python2 as "env python" doesn't
+- Patch the waf script to explicitly call python2 as "env python" does not
   yield py2 anymore
 
 * Tue Jun 19 2018 Miro Hrončok <mhroncok@redhat.com> - 1.4.0-2
@@ -447,7 +454,7 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir}/.build-id
 - New upstream release 1.1.17
 
 * Thu Jan 02 2014 Stephen Gallagher <sgallagh@redhat.com> - 1.1.16-4
-- Enable building libldb's LDAP interface module
+- Enable building libldb LDAP interface module
 
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.16-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
