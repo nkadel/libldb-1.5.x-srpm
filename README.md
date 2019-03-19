@@ -1,7 +1,7 @@
 libldb-1.4.x-srpm
 =================
 
-SRPM building tools for libldb-1.4.x for runing Samba 4 on RHEL 7 and Fedora
+SRPM building tools for libldb-1.4.x for runing Samba 4 on RHEL and Fedora
 =======
 
 Required rebuild with libtdb updates for Samba.
@@ -9,10 +9,8 @@ Required rebuild with libtdb updates for Samba.
 These are built from Fedora rawhide releases, and need to be built and
 installed in the following order.
 
-	iniparser-3.1-srpm
-
 	libtalloc-2.1.x-srpm
-	libtdb-1.4.x-srpm
+	libtdb-1.3.x-srpm
 	libldb-1.4.x-srpm
 	libtevent-0.9.x-srpm
 
