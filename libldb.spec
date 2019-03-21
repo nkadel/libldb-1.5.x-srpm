@@ -37,7 +37,7 @@ BuildRequires: python2-talloc-devel
 BuildRequires: python2-tevent
 BuildRequires: doxygen
 BuildRequires: openldap-devel
-BuildRequires: libcmocka-devel
+BuildRequires: libcmocka-devel >= 1.1.1
 
 Provides: bundled(libreplace)
 
@@ -185,13 +185,7 @@ cp -a apidocs/man/* $RPM_BUILD_ROOT/%{_mandir}
 # file path
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 
-#ldconfig_scriptlets not compatible with RHEL
-%if 0%{?fedora} || 0%{?rhel} > 7
 %ldconfig_scriptlets
-%else
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-%endif # fedora || rhel > 7
 
 %files
 %dir %{_libdir}/ldb
@@ -245,16 +239,9 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 %{_includedir}/pyldb.h
 %{_mandir}/man*/Py*.gz
 
-#ldconfig_scriptlets not compatible with RHEL
-%if 0%{?fedora} || 0%{?rhel} > 7
 %ldconfig_scriptlets -n python2-ldb
-%else
-%post -n python2-ldb -p /sbin/ldconfig
-%postun -n python2-ldb -p /sbin/ldconfig
-%endif # fedora || rhel > 7
 
 %if 0%{?with_python3}
-
 %files -n python3-ldb
 %{python3_sitearch}/ldb.cpython-*.so
 %{_libdir}/libpyldb-util.cpython-*.so.1*
@@ -265,14 +252,7 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 %{_libdir}/libpyldb-util.cpython-*.so
 %{_libdir}/pkgconfig/pyldb-util.cpython-*.pc
 
-#ldconfig_scriptlets not compatible with RHEL
-%if 0%{?fedora} || 0%{?rhel} > 7
 %ldconfig_scriptlets -n python3-ldb
-%else
-%post -n python3-ldb -p /sbin/ldconfig
-%postun -n python3-ldb -p /sbin/ldconfig
-%endif # fedora || rhel > 7
-
 %endif
 
 %changelog
