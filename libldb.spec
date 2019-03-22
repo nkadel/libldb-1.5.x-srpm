@@ -17,15 +17,20 @@
 %global with_python2 1
 %endif
 
-%if (0%{?with_python2} == 1 && 0%{?with_python3} == 0)
-# We need to sent env PYTHON for python2 only build
+%if 0%{?with_python2} && ! 0%{?with_python3}
+# We need to set env PYTHON for python2 only build
 %global export_waf_python export PYTHON=%{__python2}
 %endif
 
-%if (0%{?with_python2} == 1 && 0%{?with_python3} == 1)
+%if 0%{?with_python2} && 0%{?with_python3}
+%if 0%{?fedora} || 0%{?rhel} > 7
 # python3 is default and therefore python2 need to be set as extra-python
 %global extra_python --extra-python=%{__python2}
-%endif
+%else
+# python2 is default and therefore python3 need to be set as extra-python
+%global extra_python --extra-python=%{__python3}
+%endif # fedora > 29 || rhel >= 8
+%endif # with_python2 && with_python3
 
 %global talloc_version 2.1.16
 %global tdb_version 1.3.18
@@ -192,6 +197,14 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 
 %ldconfig_scriptlets
 
+%if 0%{?with_python2}
+%ldconfig_scriptlets -n python2-ldb
+%endif
+
+%if 0%{?with_python3}
+%ldconfig_scriptlets -n python3-ldb
+%endif
+
 %files
 %dir %{_libdir}/ldb
 %{_libdir}/libldb.so.*
@@ -292,7 +305,7 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 * Thu Jul 12 2018 Jakub Hrozek <jhrozek@redhat.com> - 1.4.1-1
 - New upstream release 1.4.1
 - Apply a patch to hide local ABI symbols to avoid issues with new binutils
-- Patch the waf script to explicitly call python2 as "env python" doesn't
+- Patch the waf script to explicitly call python2 as "env python" does not
   yield py2 anymore
 
 * Tue Jun 19 2018 Miro Hrončok <mhroncok@redhat.com> - 1.4.0-2
@@ -461,7 +474,7 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 - New upstream release 1.1.17
 
 * Thu Jan 02 2014 Stephen Gallagher <sgallagh@redhat.com> - 1.1.16-4
-- Enable building libldb's LDAP interface module
+- Enable building libldb LDAP interface module
 
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.16-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
