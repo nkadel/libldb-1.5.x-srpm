@@ -185,7 +185,9 @@ cp -a apidocs/man/* $RPM_BUILD_ROOT/%{_mandir}
 # file path
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 
-%ldconfig_scriptlets
+#%ldconfig_scriptlets
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
 
 %files
 %dir %{_libdir}/ldb
@@ -239,7 +241,9 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 %{_includedir}/pyldb.h
 %{_mandir}/man*/Py*.gz
 
-%ldconfig_scriptlets -n python2-ldb
+#%ldconfig_scriptlets -n python2-ldb
+%post -n python2-ldb -p /sbin/ldconfig
+%postun -n python2-ldb -p /sbin/ldconfig
 
 %if 0%{?with_python3}
 %files -n python3-ldb
@@ -252,7 +256,9 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 %{_libdir}/libpyldb-util.cpython-*.so
 %{_libdir}/pkgconfig/pyldb-util.cpython-*.pc
 
-%ldconfig_scriptlets -n python3-ldb
+#%%ldconfig_scriptlets -n python3-ldb
+%post -n python3-ldb -p /sbin/ldconfig
+%postun -n python3-ldb -p /sbin/ldconfig
 %endif
 
 %changelog
