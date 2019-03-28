@@ -149,11 +149,11 @@ PY3_CONFIG_FLAGS=""
 export python_LDFLAGS=""
 
 # RHEL lacks 
-%if 0%{?fedora} || 0%{?rhel} > 7
-pathfix.py -n -p -i %{__python2} buildtools/bin/waf
-%else
-sed -i.python2 "s|^#!/usr/bin/env python|#!%{__python2}|g" buildtools/bin/waf
-%endif
+#%%if 0%{?fedora} || 0%{?rhel} > 7
+#pathfix.py -n -p -i %{__python2} buildtools/bin/waf
+#%%else
+sed -i.python2 "s|^#!/usr/bin/env python.*|#!%{__python2}|g" buildtools/bin/waf
+#%%endif
 
 %configure --disable-rpath \
            --disable-rpath-install \
@@ -185,7 +185,7 @@ cp -a apidocs/man/* $RPM_BUILD_ROOT/%{_mandir}
 # file path
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 
-#%ldconfig_scriptlets
+#%%ldconfig_scriptlets
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
@@ -241,7 +241,7 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 %{_includedir}/pyldb.h
 %{_mandir}/man*/Py*.gz
 
-#%ldconfig_scriptlets -n python2-ldb
+#%%ldconfig_scriptlets -n python2-ldb
 %post -n python2-ldb -p /sbin/ldconfig
 %postun -n python2-ldb -p /sbin/ldconfig
 
