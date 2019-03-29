@@ -41,7 +41,7 @@ BuildRequires: libcmocka-devel >= 1.1.1
 
 Provides: bundled(libreplace)
 
-%if 0%{?with_python3}
+%if %{with_python3}
 BuildRequires: python3-devel
 BuildRequires: python3-tdb
 BuildRequires: python3-talloc-devel
@@ -109,7 +109,7 @@ Provides: pyldb-devel%{?_isa} = %{version}-%{release}
 Development files for the Python bindings for the LDB library.
 This package includes files that are not specific to a Python version.
 
-%if 0%{?with_python3}
+%if %{with_python3}
 
 %package -n python3-ldb
 Summary: Python bindings for the LDB library
@@ -139,7 +139,7 @@ Development files for the Python bindings for the LDB library
 
 %build
 
-%if 0%{?with_python3}
+%if %{with_python3}
 PY3_CONFIG_FLAGS=--extra-python=%{__python3}
 %else
 PY3_CONFIG_FLAGS=""
@@ -245,7 +245,7 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 %post -n python2-ldb -p /sbin/ldconfig
 %postun -n python2-ldb -p /sbin/ldconfig
 
-%if 0%{?with_python3}
+%if %{with_python3}
 %files -n python3-ldb
 %{python3_sitearch}/ldb.cpython-*.so
 %{_libdir}/libpyldb-util.cpython-*.so.1*
