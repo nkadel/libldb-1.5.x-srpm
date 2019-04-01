@@ -13,7 +13,7 @@
 %global tevent_version 0.9.36
 
 Name: libldb
-Version: 1.4.3
+Version: 1.4.6
 Release: 0.1%{?dist}
 Summary: A schema-less, ldap like, API and database
 Requires: libtalloc%{?_isa} >= %{talloc_version}
@@ -41,7 +41,7 @@ BuildRequires: libcmocka-devel >= 1.1.1
 
 Provides: bundled(libreplace)
 
-%if 0%{?with_python3}
+%if %{with_python3}
 BuildRequires: python3-devel
 BuildRequires: python3-tdb
 BuildRequires: python3-talloc-devel
@@ -109,7 +109,7 @@ Provides: pyldb-devel%{?_isa} = %{version}-%{release}
 Development files for the Python bindings for the LDB library.
 This package includes files that are not specific to a Python version.
 
-%if 0%{?with_python3}
+%if %{with_python3}
 
 %package -n python3-ldb
 Summary: Python bindings for the LDB library
@@ -139,7 +139,7 @@ Development files for the Python bindings for the LDB library
 
 %build
 
-%if 0%{?with_python3}
+%if %{with_python3}
 PY3_CONFIG_FLAGS=--extra-python=%{__python3}
 %else
 PY3_CONFIG_FLAGS=""
@@ -149,11 +149,11 @@ PY3_CONFIG_FLAGS=""
 export python_LDFLAGS=""
 
 # RHEL lacks 
-%if 0%{?fedora} || 0%{?rhel} > 7
-pathfix.py -n -p -i %{__python2} buildtools/bin/waf
-%else
-sed -i.python2 "s|^#!/usr/bin/env python|#!/usr/bin/python2|g" buildtools/bin/waf
-%endif
+#%%if 0%{?fedora} || 0%{?rhel} > 7
+#pathfix.py -n -p -i %{__python2} buildtools/bin/waf
+#%%else
+sed -i.python2 "s|^#!/usr/bin/env python.*|#!%{__python2}|g" buildtools/bin/waf
+#%%endif
 
 %configure --disable-rpath \
            --disable-rpath-install \
@@ -185,16 +185,9 @@ cp -a apidocs/man/* $RPM_BUILD_ROOT/%{_mandir}
 # file path
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
 
-# Flush build-id reckage
-rm -rf $RPM_BUILD_ROOT/%{_libdir}/.build-id
-
-#ldconfig_scriptlets not compatible with RHEL
-%if 0%{?fedora} || 0%{?rhel} > 7
-%ldconfig_scriptlets
-%else
+#%%ldconfig_scriptlets
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
-%endif # fedora || rhel > 7
 
 %files
 %dir %{_libdir}/ldb
@@ -248,15 +241,11 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir}/.build-id
 %{_includedir}/pyldb.h
 %{_mandir}/man*/Py*.gz
 
-%if 0%{?fedora} || 0%{?rhel} > 7
-%ldconfig_scriptlets -n python2-ldb
-%else
+#%%ldconfig_scriptlets -n python2-ldb
 %post -n python2-ldb -p /sbin/ldconfig
 %postun -n python2-ldb -p /sbin/ldconfig
-%endif # fedora || rhel > 7
 
-%if 0%{?with_python3}
-
+%if %{with_python3}
 %files -n python3-ldb
 %{python3_sitearch}/ldb.cpython-*.so
 %{_libdir}/libpyldb-util.cpython-*.so.1*
@@ -267,30 +256,14 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir}/.build-id
 %{_libdir}/libpyldb-util.cpython-*.so
 %{_libdir}/pkgconfig/pyldb-util.cpython-*.pc
 
-%if 0%{?fedora} || 0%{?rhel} > 7
-%ldconfig_scriptlets -n python3-ldb
-%else
+#%%ldconfig_scriptlets -n python3-ldb
 %post -n python3-ldb -p /sbin/ldconfig
 %postun -n python3-ldb -p /sbin/ldconfig
-%endif # fedora || rhel > 7
-
-%endif # with_python3
+%endif
 
 %changelog
-* Sun Nov 25 2018 Nico Kadel-Garcia <nkadel@gmail.com> - 1.4.3-0
-- Repair usage of ldconfig for multiple packages
-
-* Sun Nov 25 2018 Nico Kadel-Garcia <nkadel@gmail.com> - 1.4.3-0
-- Update to 1.4.3
-- Enable ldconfig_scriptets only for fedora || el > 7
-- Flush build-id
-
-* Thu Nov 1 2018 Nico Kadel-Garcia <nkadel@gmail.com> - 1.4.2-0.1
-- Update Source URL
-
-* Mon Sep 3 2018 Nico Kadel-Garcia <nkadel@gmail.com> - 1.4.2-0
-- Renumber to 1.4.2-0
-- Add sed workaround for missing pathfix.py for RHEL
+* Thu Aug 16 2018 Lukas Slebodnik <lslebodn@fedoraproject.org> - 1.4.2-1
+- New upstream release 1.4.2
 
 * Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.4.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
